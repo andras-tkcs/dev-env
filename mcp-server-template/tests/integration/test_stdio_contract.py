@@ -17,7 +17,10 @@ pytestmark = pytest.mark.integration
 
 
 def _server_params() -> StdioServerParameters:
-    return StdioServerParameters(command=sys.executable, args=["-m", "__PACKAGE__"])
+    return StdioServerParameters(
+        command=sys.executable,
+        args=["-m", "__PACKAGE__"],
+    )
 
 
 class TestStdioContract:

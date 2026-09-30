@@ -9,7 +9,10 @@ from .server import build_server
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="__DIST_NAME__", description=__doc__)
+    parser = argparse.ArgumentParser(
+        prog="__DIST_NAME__",
+        description=__doc__,
+    )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     parser.parse_args(argv)
     build_server().run("stdio")

@@ -32,7 +32,11 @@ def _python() -> str:
 class TestInstalledWheel:
     def test_package_comes_from_the_install_not_the_checkout(self) -> None:
         out = subprocess.run(  # nosec B603
-            [_python(), "-c", "import __PACKAGE__; print(__PACKAGE__.__file__)"],
+            [
+                _python(),
+                "-c",
+                "import __PACKAGE__; print(__PACKAGE__.__file__)",
+            ],
             capture_output=True,
             text=True,
             check=True,
@@ -41,7 +45,11 @@ class TestInstalledWheel:
         assert not Path(out).resolve().is_relative_to(REPO_SRC)
 
     async def test_entry_point_lists_tools_over_stdio(self) -> None:
-        params = StdioServerParameters(command=_python(), args=["-m", "__PACKAGE__"], cwd=os.path.expanduser("~"))
+        params = StdioServerParameters(
+            command=_python(),
+            args=["-m", "__PACKAGE__"],
+            cwd=os.path.expanduser("~"),
+        )
         async with Client(params, read_timeout_seconds=30) as client:
             tools = (await client.list_tools()).tools
             result = await client.call_tool("server_info", {})
