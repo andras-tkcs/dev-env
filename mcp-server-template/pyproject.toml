@@ -1,0 +1,99 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "__DIST_NAME__"
+# The version comes from the git tag through setuptools_scm and nowhere else; there is no version
+# string in the source tree and no version-bump commit (docs/releasing.md, ADR 0004).
+dynamic = ["version"]
+description = "__DESCRIPTION__"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "__AUTHOR_NAME__", email = "__CONTACT_EMAIL__" }]
+keywords = ["mcp", "model-context-protocol"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    # The official SDK serves the protocol; the transport is not hand-rolled (ADR 0003). 2.x's
+    # server API is not additive over 1.x, hence the floor and the ceiling.
+    "mcp>=2.2,<3.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/__OWNER__/__REPO__"
+Issues = "https://github.com/__OWNER__/__REPO__/issues"
+Changelog = "https://github.com/__OWNER__/__REPO__/blob/main/CHANGELOG.md"
+
+[project.scripts]
+__DIST_NAME__ = "__PACKAGE__.__main__:main"
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=5",
+    "pytest-timeout>=2.3",
+]
+lint = [
+    "ruff>=0.6",
+    "mypy>=1.10",
+    "bandit[toml]>=1.7",
+]
+dev = ["__DIST_NAME__[test,lint]", "build>=1.2"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools_scm]
+# Only ever seen by a checkout with no tags (a shallow clone, a tarball). Never a shipped version.
+fallback_version = "0.0.0.dev0"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+timeout = 30
+# One marker per layer of docs/testing-policy.md. A new test module carries the marker of its layer.
+markers = [
+    "unit: fast, fully offline, one module in isolation",
+    "integration: the real server over a real MCP transport, no external network",
+    "client: a real, pinned AI-client CLI against the server",
+    "live: touches the real upstream service (self-hosted runner only)",
+    "packaged: runs against a built wheel/sdist installed into a clean environment",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src/__PACKAGE__"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "B", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+
+# The strictness ratchet: scripts/mypy_strict_modules.py re-runs mypy, blocking, over every module
+# listed in an override like this one. Promote a module by adding a block once it is clean.
+[[tool.mypy.overrides]]
+module = "__PACKAGE__.server"
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_calls = true
+disallow_any_generics = true
+warn_return_any = true
+no_implicit_reexport = true
+strict_equality = true
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
