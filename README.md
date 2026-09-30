@@ -280,11 +280,17 @@ The template is plain files: edit them, then prove the result still passes its o
 
 ```bash
 rm -rf /tmp/tpl-check
-scripts/new-mcp-server.sh /tmp/tpl-check --display-name "Check" --dist-name tpl-check \
+scripts/new-mcp-server.sh /tmp/tpl-check --display-name "Check" \
+  --dist-name a-deliberately-long-server-name-to-check-line-wrapping \
   --owner o --repo r --maintainer m --author a --email a@example.com
 cd /tmp/tpl-check && python3 -m venv .venv && .venv/bin/pip install -q -e ".[dev]" \
   && .venv/bin/python scripts/pre_release_check.py
 ```
+
+The long `--dist-name` is on purpose: a placeholder inside code can push a line past ruff's limit
+once it is filled in, and a short name hides that. Write any code line that holds a name token in
+its exploded form with a trailing comma, so the formatter leaves it alone whatever the name's
+length.
 
 Placeholders are `__UPPER_CASE__` tokens; the script only replaces the names in the table above, so
 Python dunders (`__init__`, `__version__`) are never touched. When PrivacyFence's process changes,
