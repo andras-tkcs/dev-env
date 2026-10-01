@@ -1,0 +1,38 @@
+{
+  "name": "iOS app",
+  "summary": "A SwiftUI iPhone and iPad app with its logic in a Swift package, shipped through TestFlight.",
+  "guide": "docs/ios-app.md",
+  "params": [
+    {
+      "token": "MODULE",
+      "flag": "--module",
+      "help": "Swift module and Xcode target name, UpperCamelCase (default: the display name without spaces)",
+      "default_from": "DISPLAY_NAME",
+      "transform": "pascal",
+      "pattern": "^[A-Z][A-Za-z0-9]*$",
+      "pattern_help": "UpperCamelCase letters and digits, starting with a capital letter"
+    },
+    {
+      "token": "BUNDLE_ID",
+      "flag": "--bundle-id",
+      "help": "the app's bundle identifier, reverse-DNS (com.acme.notes)",
+      "pattern": "^[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)+$",
+      "pattern_help": "reverse-DNS: letters, digits and hyphens in dot-separated parts"
+    },
+    {
+      "token": "TEAM_ID",
+      "flag": "--team-id",
+      "help": "Apple Developer Team ID, ten characters (optional; set it later in project.yml)",
+      "default": "",
+      "allow_empty": true,
+      "pattern": "^([A-Z0-9]{10})?$",
+      "pattern_help": "ten uppercase letters and digits"
+    }
+  ],
+  "description_default": "An iOS app.",
+  "executable": [".claude/hooks/*.sh", "scripts/*.py"],
+  "next_steps": [
+    "python3 scripts/pre_release_check.py     # the definition-of-done gate; on macOS it also builds and tests the app",
+    "brew install xcodegen && xcodegen generate && open __MODULE__.xcodeproj"
+  ]
+}
