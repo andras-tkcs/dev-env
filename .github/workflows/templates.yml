@@ -1,0 +1,76 @@
+name: Templates
+
+# Every template must still carry the shared working mode and, once generated, pass its own
+# definition-of-done gate (docs/working-mode.md). A template that only looks right is not enough:
+# each job generates a sample repository with deliberately long names and runs that repository's
+# own gate in it, the way a new project would on its first day.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Shared files, required files, placeholders, generation
+        run: python3 scripts/check_templates.py
+
+  mcp-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+      - name: Generate a sample repository
+        run: python3 scripts/check_templates.py --generate mcp-server "$RUNNER_TEMP/sample"
+      - name: Run its definition-of-done gate
+        working-directory: ${{ runner.temp }}/sample
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install -q -e ".[dev]"
+          .venv/bin/python scripts/pre_release_check.py
+
+  # The part of the iOS gate a Linux cloud session can run: AppCore, formatting, scripts.
+  ios-app-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Generate a sample repository
+        run: python3 scripts/check_templates.py --generate ios-app "$RUNNER_TEMP/sample"
+      - name: Run its definition-of-done gate (simulator rows report SKIP)
+        working-directory: ${{ runner.temp }}/sample
+        run: |
+          swift --version
+          python3 scripts/pre_release_check.py
+
+  # The whole iOS gate, simulators included. macOS minutes cost more on a private repository;
+  # this job is what proves the Swift code, project.yml and the workflows' xcodebuild lines work.
+  ios-app-macos:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Generate a sample repository
+        run: python3 scripts/check_templates.py --generate ios-app "$RUNNER_TEMP/sample"
+      - name: Run its definition-of-done gate
+        working-directory: ${{ runner.temp }}/sample
+        run: |
+          xcodebuild -version
+          brew install xcodegen
+          python3 scripts/pre_release_check.py
+      - name: Archive the Release configuration unsigned, as its build.yml does
+        working-directory: ${{ runner.temp }}/sample
+        run: |
+          scheme="$(sed -n 's/^name: //p' project.yml)"
+          xcodebuild archive -project "$scheme.xcodeproj" -scheme "$scheme" -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "build/$scheme.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO MARKETING_VERSION=1.2.3 CURRENT_PROJECT_VERSION=45 -quiet
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' \
+            "build/$scheme.xcarchive/Products/Applications/$scheme.app/Info.plist" | grep -qx 1.2.3
