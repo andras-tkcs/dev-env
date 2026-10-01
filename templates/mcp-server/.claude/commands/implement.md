@@ -158,13 +158,13 @@ On each check-in, for each `running` phase, call `get_session`:
 3. `git checkout <feature_branch> && git merge --no-ff origin/<phase branch>` with the message
    `Merge <plan slug> <phase id>: <title>` and the trailer `Plan-Phase: <plan slug>/<phase id>`.
    - **Conflict:** resolve it yourself only when it is mechanical (both sides added to the same
-     list, or adjacent edits). Regenerate lockfiles and generated files (compiled CSS,
-     lock files) with the repo's tools, never by hand-editing. If a conflict is
+     list, or adjacent edits). Regenerate lockfiles and generated files with the repo's
+     tools, never by hand-editing. If a conflict is
      semantic, abort the merge and start a short session on the phase branch whose brief is "merge
      `<feature_branch>` into this branch and resolve the conflict"; then merge again.
-4. Verify **after the merge**, on the feature branch: `ruff check .`,
-   `python3 -m pytest tests/unit -q`, and the manifest's `verify_after_merge` commands. If anything
-   is red, `git merge --abort` is no longer possible, so revert the merge commit
+4. Verify **after the merge**, on the feature branch: the fast checks listed in
+   `docs/testing-policy.md` ("Fast checks"), and the manifest's `verify_after_merge` commands. If
+   anything is red, `git merge --abort` is no longer possible, so revert the merge commit
    (`git revert -m 1`), push, send the failure back to the phase, and mark the phase `running`
    again.
 5. Push the feature branch. Mark the phase `merged`, delete the phase branch on origin, and
@@ -196,8 +196,8 @@ start one review session with `create_session`: `source_revision` the feature br
 > seams between phases (a function one phase added and another calls wrongly, duplicated
 > helpers, inconsistent names or strings), missing tests for an acceptance item, a weakened or
 > skipped test, a security or privacy regression, docs that describe something other than what
-> the code does, and every `final_checks` item. Run `ruff check .` and
-> `python3 -m pytest tests/unit -q` yourself.
+> the code does, and every `final_checks` item. Run the fast checks in `docs/testing-policy.md`
+> ("Fast checks") yourself.
 >
 > End with `REVIEW-REPORT verdict=<approve|changes>` on its own line, then one numbered finding per
 > line: `blocking|non-blocking`, `path:line`, the phase id it belongs to, and what is wrong and what

@@ -95,6 +95,16 @@ nothing. That dispatched run is the release pre-flight (ADR 0006).
 The manual release checks, and the rule for what may stay manual, are in
 [`release-testing.md`](release-testing.md).
 
+## Fast checks
+
+The seconds-long subset a session runs after every merge into a feature branch (`/implement`) and
+before handing a branch to review. It is not the definition of done; `/dod` is.
+
+```bash
+ruff check .
+python3 -m pytest tests/unit -q
+```
+
 ## Running the gate yourself
 
 - **`/dod`** (`.claude/commands/dod.md`) runs the blocking gate of the

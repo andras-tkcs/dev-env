@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted — __DATE__. Inherited from the MCP server template.
+Accepted — __DATE__. Inherited from the __TEMPLATE__ template.
 
 ## Context
 

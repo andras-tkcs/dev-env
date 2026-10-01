@@ -22,7 +22,7 @@ Write one when a decision meets **any** of these:
 
 - it is expensive or disruptive to reverse (a packaging format, a wire protocol, a data model);
 - it sets or moves a trust or security boundary, or decides who holds a credential;
-- it changes how the server is built, released or distributed;
+- it changes how the project is built, released or distributed;
 - it rejects an alternative a reasonable newcomer would propose, for a reason that isn't obvious;
 - it deliberately departs from a rule written elsewhere in this repo (e.g. "stdlib first");
 - someone will plausibly ask "why didn't we just…?" in six months.

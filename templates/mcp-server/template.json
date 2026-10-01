@@ -1,0 +1,29 @@
+{
+  "name": "MCP server",
+  "summary": "A Python MCP server on the official SDK, published to PyPI.",
+  "guide": "docs/mcp-server.md",
+  "params": [
+    {
+      "token": "DIST_NAME",
+      "flag": "--dist-name",
+      "help": "PyPI name, command name and MCP server name, in kebab-case (acme-mcp)",
+      "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?$",
+      "pattern_help": "lowercase kebab-case"
+    },
+    {
+      "token": "PACKAGE",
+      "flag": "--package",
+      "help": "Python import name (default: the dist name with '_' for '-')",
+      "default_from": "DIST_NAME",
+      "transform": "snake",
+      "pattern": "^[a-z_][a-z0-9_]*$",
+      "pattern_help": "a valid Python identifier"
+    }
+  ],
+  "description_default": "An MCP server.",
+  "executable": [".claude/hooks/*.sh", "scripts/*.py"],
+  "next_steps": [
+    "python3 -m venv .venv && .venv/bin/pip install -e \".[dev]\"",
+    ".venv/bin/python scripts/pre_release_check.py     # the definition-of-done gate, all PASS"
+  ]
+}

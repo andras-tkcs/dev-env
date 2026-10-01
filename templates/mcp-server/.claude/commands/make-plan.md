@@ -133,8 +133,8 @@ manual_after:                           # the user does these AFTER the last mer
   - id: ma1-<kebab>
     title: <one line>
     why: <what it verifies that CI cannot>
-verify_after_merge:                     # commands the orchestrator runs after each merge
-  - python3 -m pytest tests/unit/<...> -q
+verify_after_merge:                     # run after each merge, on top of the fast checks
+  - <a command from docs/testing-policy.md's "Fast checks", narrowed to this plan's area>
 screenshots_after_merge: <command>      # optional
 final_checks:                           # checked before the PR opens
   - docs/<slug>-plan.md and docs/<slug>-plan-manual-steps.html are deleted and nothing links to them
@@ -146,8 +146,8 @@ phases:
     depends_on: []
     complexity: S                       # S or M; see "Sizing for Sonnet" below
     touches:                            # every file or glob this phase may change
-      - src/__PACKAGE__/<...>.py
-      - tests/unit/test_<...>.py
+      - <source file>
+      - <the test file that mirrors it, per docs/coding-and-testing-guidelines.md>
     brief: |
       <numbered, prescriptive steps; see below>
     acceptance:
@@ -187,9 +187,9 @@ the user can read, and prefer splitting the phase first.
 
 ## 3. Manual steps: only at the very beginning and the very end
 
-Some things only the user can do: create an account or an OAuth client in a third-party console,
-set up a test tenant or QA account on the upstream service, put a
-secret into the environment or into GitHub, click through a real device or a real third-party UI.
+Some things only the user can do: create an account, an OAuth client or an app record in a
+third-party console, set up a test tenant or QA account on an upstream service, put a secret into
+the environment or into GitHub, click through a real device or a real third-party UI.
 The plan collects every one of them into exactly two places:
 
 - **`manual_before`**: everything a phase needs to already exist. `/implement` asks the user to
@@ -204,9 +204,8 @@ is the last resort, for a review that would make every later phase wrong if skip
 plan.
 
 Before calling a step manual, check whether it is not. Anything in
-`.claude/skills/steward/SKILL.md`'s dispatch table (packaged builds, live upstream checks, fixture
-recording) runs on a runner and belongs in a phase's brief, not in
-`manual_*`.
+`.claude/skills/steward/SKILL.md`'s dispatch table (release builds, platform-specific test runs,
+live upstream checks) runs on a runner and belongs in a phase's brief, not in `manual_*`.
 
 Secrets never travel through chat, the plan, or the artifact. A step that produces a secret says
 exactly where the user stores it (the Claude Code environment's settings, or the repo's
